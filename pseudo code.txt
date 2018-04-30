@@ -1,0 +1,10 @@
+On attribue une énergie à chaque pixel
+On crée une image de dimension (w+2, h+1) avec des infinis autour excepté en bas
+On initialse les M de la première ligne avec les valeurs de l'énergie
+Pour chaque ligne :
+	Pour chaque pixel (de la ligne) :
+		M = énergie du pixel + min(3 précédents)
+
+On crée une liste chemin avec les coordonnées de l'élément de plus petit M sur la dernière ligne
+Pour chaque ligne (en remontant) :
+	on ajoute à chemin, les coordonnées du M le plus petit au dessus du précédent
