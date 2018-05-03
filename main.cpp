@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
     energie(Vx,Vy,E);
     display(E);
     click();
-/*
+
     int last_state=0;
     std::vector<Coords<2>> seam_test=Bellman_vertical(E,last_state);
     display(I);
@@ -36,10 +36,10 @@ int main(int argc, char* argv[])
     Image<Color> copie=assemble_vertical(I,seam_test);
     display(copie);
     click();
-    */
 
-    Image<Color> I_=Transpose(I);
-    Image<Color> copie=remove_vertical(I_,Vx,Vy,60);
+
+/*
+    Image<Color> copie=remove_vertical(I,Vx,Vy,60);
     display(I);
     click();
     Window W1 = openWindow(copie.width(), copie.height());
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
     click();
 
 
-
+*/
 
     return 0;
 }
