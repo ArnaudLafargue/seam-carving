@@ -1,4 +1,3 @@
-
 #include "image.h"
 #include <iostream>
 const float POURCENT=0.5f;
@@ -106,4 +105,3 @@ void energie(Image<byte>& Vx, Image<byte>& Vy,Image<byte>& E)
         }
     }
 }
-
