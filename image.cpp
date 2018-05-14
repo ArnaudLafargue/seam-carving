@@ -1,3 +1,4 @@
+
 #include "image.h"
 #include <iostream>
 const float POURCENT=0.5f;
@@ -67,6 +68,7 @@ void gradient(const Image<Color>& I, Image<Color>& Vx, Image<Color>& Vy)
     Image<byte> I_r=image_rouge(I);
     Image<byte> I_g=image_vert(I);
     Image<byte> I_b=image_bleue(I);
+
     for (int i=0;i<I.height();i++)
     {
         for ( int j=0;j<I.width();j++)
@@ -90,18 +92,22 @@ void gradient(const Image<Color>& I, Image<byte>& Vx, Image<byte>& Vy)
         {
             Coords<2> pos(j,i);
             FVector<Color,2> grad=gradient(I,pos);
-            Vx(j,i)=std::max(std::max(grad.x().r(),grad.x().g()),grad.x().b());
-            Vy(j,i)=std::max(std::max(grad.y().r(),grad.y().g()),grad.y().b());
+            //Vx(j,i)= std::max(std::max(grad.x().r(),grad.x().g()),grad.x().b());
+            //Vy(j,i)= std::max(std::max(grad.y().r(),grad.y().g()),grad.y().b());
+            Vx(j,i)= int(sqrt(pow(grad.x().r(),2)+pow(grad.x().g(),2)+pow(grad.x().b(),2))/sqrt(3));
+            Vy(j,i)= int(sqrt(pow(grad.y().r(),2)+pow(grad.y().g(),2)+pow(grad.y().b(),2))/sqrt(3));
         }
     }
 }
+
 void energie(Image<byte>& Vx, Image<byte>& Vy,Image<byte>& E)
 {
     for (int i=0;i<Vx.height();i++)
     {
-        for ( int j=0;j<Vx.width();j++)
+        for (int j=0;j<Vx.width();j++)
         {
             E(j,i)=(Vx(j,i)+Vy(j,i));
         }
     }
 }
+
