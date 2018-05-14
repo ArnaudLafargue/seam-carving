@@ -8,6 +8,5 @@ project(PIR)
 add_executable(PIR main.cpp
                image.h image.cpp
                seam.h seam.cpp)
-               image.h image.cpp)
 
 ImagineUseModules(PIR Graphics)
