@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
     dessine(seam_test);
     std::cout << seam_value;
     click();
-    Image<Color> test=assemble_horizontal(I,seam_test);
+    Image<Color> test=assemble_vertical(I,seam_test);
     display(test);
     click();
 
