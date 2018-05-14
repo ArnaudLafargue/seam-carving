@@ -29,6 +29,10 @@ int main(int argc, char* argv[])
     display(E);
     int seam_value=0;
     display(I);
+    
+    // Choisir entre les deux bouts de code ci-dessous pour 
+    // enlever soit une colonne (1) soit une ligne (2)
+    //1
     std::vector<Coords<2>> seam_test=Bellman_vertical(E,seam_value);
     dessine(seam_test);
     std::cout << seam_value;
@@ -36,41 +40,21 @@ int main(int argc, char* argv[])
     Image<Color> test=assemble_vertical(I,seam_test);
     display(test);
     click();
-
-/*
-
-    int last_state=0;
-    std::vector<Coords<2>> seam_test=Bellman_vertical(E,last_state);
-    display(It);
+    
+    //2
+    /*
+    std::vector<Coords<2>> seam_test=Bellman_horizontal(E,seam_value);
     dessine(seam_test);
+    std::cout << seam_value;
     click();
-    Image<Color> copie=assemble_vertical(It,seam_test);
-    display(copie);
+    Image<Color> test=assemble_horizontal(I,seam_test);
+    display(test);
     click();
+    */
 
-*/
-/*
-    openWindow(I.width(),I.height());
-    display(I);
-    Image<byte> Vx(I.width(),I.height());
-    Image<byte> Vy(I.width(),I.height());
-    gradient(I,Vx,Vy);
-    Image<Color> copie=remove_vertical(I,Vx,Vy,10);
-
-
-    click();
-    Window W1 = openWindow(copie.width(),copie.height());
-    setActiveWindow(W1);
-    display(copie);
-
-    click();
-    Image<Color> copie2=remove_horizontal(I,Vx,Vy,10);
-    Window W2 = openWindow(copie.width(),copie2.height());
-    setActiveWindow(W2);
-    display(copie2);
-    click();
-
-*/
+    
+    // Permet de retirer 10 colonnes et 20 lignes de façon 
+    //"optimisée" , (il faut commenter (1) pour que cela fonctionne)
     /*
     openWindow(I.width(),I.height());
     display(I);
@@ -81,6 +65,6 @@ int main(int argc, char* argv[])
     display(copie);
     click();
 
-*/
+    */
     return 0;
 }
