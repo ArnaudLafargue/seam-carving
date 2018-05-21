@@ -27,6 +27,7 @@ int main(int argc, char* argv[])
     click();
     energie(Vx,Vy,E);
     display(E);
+    click()
     int seam_value=0;
     display(I);
     
