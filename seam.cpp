@@ -250,7 +250,7 @@ Image<Color> Transpose(Image<Color> I)
 
 Image<Color> remove(Image<Color> I,int w,int h)
 {
-   std::cout << "w restant "<< w<<" ;h restant "<<h<<std::endl;
+    std::cout << w << " horizontales restantes  ;  "<< h << " verticales restantes" << std::endl;
     Image<byte> Vx(I.width(),I.height());
     Image<byte> Vy(I.width(),I.height());
     Image<byte> E(I.width(),I.height());
@@ -316,3 +316,106 @@ Image<Color> remove(Image<Color> I,int w,int h)
 
 }
 
+void remove_inf(Image<Color> I,int w,int h)
+{
+    std::cout << w << " horizontales à supprimer  ;  "<< h << " verticales à supprimer" << std::endl;
+    Image<byte> Vx(I.width(),I.height());
+    Image<byte> Vy(I.width(),I.height());
+    Image<byte> E(I.width(),I.height());
+
+    gradient(I,Vx,Vy);
+    energie(Vx,Vy,E);
+
+    while (w>0 || h>0) {
+        if (w>0 && h>0)
+        {
+            int seam_value1;
+            int seam_value2;
+            std::vector<Coords<2>> seam1=Bellman_horizontal(E,seam_value1);
+            std::vector<Coords<2>> seam2=Bellman_vertical(E,seam_value2);
+            if (seam_value1 > seam_value2)
+            {
+                for (int k=0; k<seam2.size(); k++){
+                    E(seam2[k])=int(1e10);
+                }
+                dessine(seam2);
+                w--;
+            }
+            else
+            {
+                for (int k=0; k<seam1.size(); k++){
+                    E(seam1[k])=int(1e10);
+                }
+                dessine(seam1);
+                h--;
+            }
+
+        }
+        else if(w>0 && h==0)
+        {
+            int seam_value;
+            std::vector<Coords<2>> seam=Bellman_vertical(E,seam_value);
+            for (int k=0; k<seam.size(); k++){
+                E(seam[k])=int(1e10);
+            }
+            dessine(seam);
+            w--;
+        }
+        else if(w==0 && h>0)
+        {
+            int seam_value;
+            std::vector<Coords<2>> seam=Bellman_horizontal(E,seam_value);
+            for (int k=0; k<seam.size(); k++){
+                E(seam[k])=int(1e10);
+            }
+            dessine(seam);
+            w--;
+        }
+    }
+}
+
+Image<Color> scale_up_width(Image<Color> I, int w) {
+
+    Image<byte> Vx(I.width(),I.height());
+    Image<byte> Vy(I.width(),I.height());
+    Image<byte> E(I.width(),I.height());
+
+    gradient(I,Vx,Vy);
+    energie(Vx,Vy,E);
+
+    for (int j=0; j<E.height(); j++) {
+        E(0, j)=byte(1e10);
+        E(E.width()-1, j)=byte(1e10);
+    }
+
+
+
+    while (w>0) {
+
+
+
+    }
+    /*if (w>0) {
+        int seam_value;
+        std::vector<Coords<2>> seam=Bellman_vertical(E,seam_value);
+        Image<Color> I_(I.width()+1,I.height());
+        for (int j=0;j<I_.height();j++)
+        {
+            for (int i=0;i<=seam[j].x();i++)
+            {
+                I_(i,j)=I(i,j);
+            }
+            I_(seam[j]).r() = (I(seam[j]).r() + I(seam[j].x()+1, j).r())/2;
+            I_(seam[j]).g() = (I(seam[j]).g() + I(seam[j].x()+1, j).g())/2;
+            I_(seam[j]).b() = (I(seam[j]).b() + I(seam[j].x()+1, j).b())/2;
+            std::cout << I_(seam[j]) << std::endl;
+            for ( int i=seam[j].x();i<I.width()-1;i++)
+            {
+                I_(i+1,j)=I(i,j);
+            }
+        }
+        return scale_up_width(I_,w-1);
+    }
+    else
+        return I;*/
+}

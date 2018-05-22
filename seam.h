@@ -19,5 +19,9 @@ Image<Color> Transpose(Image<Color> I);
 
 Image<Color> remove(Image<Color> I,int w, int h);
 
+void remove_inf(Image<Color> I, int w, int h);
+
+Image<Color> scale_up_width(Image<Color> I, int w);
+
 
 #endif // SEAM_H
