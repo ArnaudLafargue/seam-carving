@@ -84,7 +84,6 @@ std::vector<Coords<2>> Bellman_vertical(Image<byte> E,int&seam_value)
         seam_opt.insert(seam_opt.begin(),p_);
     }
 
-
 return seam_opt;
 }
 
@@ -157,16 +156,13 @@ return seam_opt;
 }
 
 
-
 void dessine(std::vector<Coords<2>> seam)
 {
-
     int N = seam.size();
     for ( int i=0;i<N;i++)
     {
         fillRect(seam[i].x(),seam[i].y(),1,1,RED);
     }
-
 }
 
 Image<Color> assemble_vertical(Image<Color> I, std::vector<Coords<2>> seam)
@@ -202,8 +198,8 @@ Image<Color> assemble_horizontal(Image<Color> I,std::vector<Coords<2>> seam)
         }
     }
     return copie;
-
 }
+
 Image<Color> ajoute_horizontal(Image<Color> I,std::vector<Coords<2>> seam)
 {
     Image<Color> copie(I.width(),I.height()+1);
@@ -212,7 +208,6 @@ Image<Color> ajoute_horizontal(Image<Color> I,std::vector<Coords<2>> seam)
         for ( int i=0;i<seam[j].y();i++)
         {
             copie(j,i)=I(j,i);
-
         }
 
         int r1=I(j,seam[j].y()).r();
@@ -224,17 +219,12 @@ Image<Color> ajoute_horizontal(Image<Color> I,std::vector<Coords<2>> seam)
 
         copie(j,seam[j].y())= Color((r1+r2)/2,(g1+g2)/2,(b1+b2)/2);
 
-        //std::cout<< r <<" "<<g<< " "<< b<<std::endl;
-
         for ( int i=seam[j].y()+1;i<copie.height();i++)
         {
             copie(j,i)=I(j,i-1);
-
         }
-
     }
     return copie;
-
 }
 
 
@@ -257,17 +247,12 @@ Image<Color> ajoute_vertical(Image<Color> I,std::vector<Coords<2>> seam)
 
         copie(seam[i].x(),i)= Color((r1+r2)/2,(g1+g2)/2,(b1+b2)/2);
 
-        //std::cout<< r <<" "<<g<< " "<< b<<std::endl;
-
         for ( int j = seam[i].x()+1;j < copie.width();j++)
         {
             copie(j,i)=I(j-1,i);
-
         }
-
     }
     return copie;
-
 }
 
 
@@ -364,14 +349,19 @@ Image<Color> addseam_horizontal(Image<Color> I,std::vector<Coords<2>> seam)
             {
                 I_(j,k)=I(j,k);
             }
-            I_(j,i)=(I(j,i)+I(j,i-1))/2;
+            int r1=I(j,i).r();
+            int r2=I(j,i-1).r();
+            int g1=I(j,i).g();
+            int g2=I(j,i-1).g();
+            int b1=I(j,i).b();
+            int b2=I(j,i-1).b();
+
+            I_(j,i)=Color((r1+r2)/2,(g1+g2)/2,(b1+b2)/2);
             for (int k=i+1;k<I.height()+1;k++)
             {
                 I_(j,k)=I(j,k-1);
             }
-
         }
-
     }
     return I_;
 }
@@ -396,13 +386,10 @@ Image<Color> addseam_vertical(Image<Color> I,std::vector<Coords<2>> seam)
         }
         else
         {
-            for ( int l= 0;l<j;l++)
+            for ( int l = 0;l<j;l++)
             {
-                assert( l<I_.width() || l<I.width());
-                assert( i<I_.height() || i<I.height());
                 I_(l,i)=I(l,i);
             }
-
             int r1=I(j,i).r();
             int r2=I(j-1,i).r();
             int g1=I(j,i).g();
@@ -415,80 +402,141 @@ Image<Color> addseam_vertical(Image<Color> I,std::vector<Coords<2>> seam)
             {
                 I_(k,i)=I(k-1,i);
             }
-
         }
-
     }
     return I_;
 }
 
-Image<Color> insertion_vertical(Image<Color> I,int n)
+void reccord_seam_vert(Image<Color> I,int n,std::vector<std::vector<Coords<2>>> &liste_seam)
 {
-    Image<Color> Itemp=I;
-    std::vector<std::vector<Coords<2>>> liste_seam;
-    while (n>0)
+    if (n>0)
     {
-        Image<byte> Vx(Itemp.width(),Itemp.height());
-        Image<byte> Vy(Itemp.width(),Itemp.height());
-        Image<byte> E(Itemp.width(),Itemp.height());
-        Image<byte> Igrey_temp=imagegrey(Itemp);
-        gradient(Igrey_temp,Vx,Vy);
-        energie(Vx,Vy,E);
+        Image<byte> Vx(I.width(),I.height());
+        Image<byte> Vy(I.width(),I.height());
+        Image<byte> E(I.width(),I.height());
+        Image<byte> Igrey = imagegrey(I);
+        gradient(Igrey,Vx,Vy);
+        energie(Vx,Vy,E); // Calcul de la carte d'energie
 
         int seam_value;
-        std::vector<Coords<2>> seam=Bellman_vertical(E,seam_value);
-        liste_seam.push_back(seam);
-        Image<Color> Itemp2(Itemp.width()-1,Itemp.height());
-        Itemp2 = assemble_vertical(Itemp,seam);
-        Itemp.~Image();
-        Image<Color> Itemp=Itemp2;
-        n--;
+        std::vector<Coords<2>> seam = Bellman_vertical(E,seam_value);// Obtention de la seam
+        liste_seam.push_back(seam);// Ajout au tableau contenant l'ensemble des seams
+        Image<Color> I_= assemble_vertical(I,seam);// Réduction de l'image sans seam
+        return reccord_seam_vert(I_,n-1,liste_seam);
     }
-    n = liste_seam.size();
-    while (n>0)
+}
+
+void reccord_seam_hor(Image<Color> I,int n,std::vector<std::vector<Coords<2>>> &liste_seam)
+{
+
+    if (n>0)
+    {
+        Image<byte> Vx(I.width(),I.height());
+        Image<byte> Vy(I.width(),I.height());
+        Image<byte> E(I.width(),I.height());
+        Image<byte> Igrey = imagegrey(I);
+        gradient(Igrey,Vx,Vy);
+        energie(Vx,Vy,E); // Calcul de la carte d'energie
+
+        int seam_value;
+        std::vector<Coords<2>> seam = Bellman_horizontal(E,seam_value);// Obtention de la seam
+        liste_seam.push_back(seam);// Ajout au tableau contenant l'ensemble des seams
+        Image<Color> I_= assemble_horizontal(I,seam);// Réduction de l'image sans seam
+        return reccord_seam_hor(I_,n-1,liste_seam);
+    }
+
+
+}
+
+
+Image<Color> insertion_vert(Image<Color> I,int n,std::vector<std::vector<Coords<2>>> &liste_seam)
+{
+    if(n>0)
     {
         std::vector<Coords<2>> seam = liste_seam[0];
-        Image<Color> Itemp2=addseam_vertical(Itemp,seam);
-        if ( liste_seam.size()>1)
-        {
-            liste_seam = update_seam_vertical(liste_seam,seam);
-        }
-        Itemp.~Image();
-        Image<Color> Itemp=Itemp2;
-        n--;
+        liste_seam.erase(liste_seam.begin()); // pop front
 
+        Image<Color> I_=addseam_vertical(I,seam);
+        liste_seam = update_seam_vertical(liste_seam,seam);
+        return insertion_vert(I_,n-1,liste_seam);
     }
+    else
+        return I;
 
-    return Itemp;
+}
+
+Image<Color> insertion_hor(Image<Color> I,int n,std::vector<std::vector<Coords<2>>> &liste_seam)
+{
+    if(n>0)
+    {
+        std::vector<Coords<2>> seam = liste_seam[0];
+        liste_seam.erase(liste_seam.begin()); // pop front
+
+        Image<Color> I_=addseam_horizontal(I,seam);
+        liste_seam = update_seam_horizontal(liste_seam,seam);
+        return insertion_hor(I_,n-1,liste_seam);
+    }
+    else
+        return I;
+
+}
+
+Image<Color> addVertical(Image<Color> I,int n)
+{
+    std::vector<std::vector<Coords<2>>> liste_seam;
+    reccord_seam_vert(I,n,liste_seam);
+    Image <Color> res =insertion_vert(I,n,liste_seam);
+    return res;
+
+}
+
+Image<Color> addHorizontal(Image<Color> I,int n)
+{
+    std::vector<std::vector<Coords<2>>> liste_seam;
+    reccord_seam_hor(I,n,liste_seam);
+    Image <Color> res =insertion_hor(I,n,liste_seam);
+    return res;
+
 }
 
 
 std::vector<std::vector<Coords<2>>> update_seam_vertical(std::vector<std::vector<Coords<2>>> remaining_seams,std::vector<Coords<2>>current_seam)
 {
     std::vector<std::vector<Coords<2>>> output;
-    if (remaining_seams.size()<=1)
+
+    for (int k=0;k<remaining_seams.size();k++)
     {
-        Coords<2> test(0,0);
-        std::vector<Coords<2>> p;
-        p.push_back(test);
-        output.push_back(p);
-        return output;
-    }
-    else
-    {
-        for (int k=1;k<remaining_seams.size();k++)
+        std::vector<Coords<2>> seam = remaining_seams[k];
+        for ( int l=0;l<seam.size();l++)
         {
-            std::vector<Coords<2>> seam = remaining_seams[k];
-            for ( int l=0;l<seam.size();l++)
+            if (current_seam[l].x() <=  seam[l].x())
             {
-                if (current_seam[l].x() <=  seam[l].x())
-                {
-                    seam[l].x()+=2;
-                }
+                seam[l].x()+=2;
             }
-            output.push_back(seam);
         }
+        output.push_back(seam);
     }
+
+    return output;
+}
+
+std::vector<std::vector<Coords<2>>> update_seam_horizontal(std::vector<std::vector<Coords<2>>> remaining_seams,std::vector<Coords<2>>current_seam)
+{
+    std::vector<std::vector<Coords<2>>> output;
+
+    for (int k=0;k<remaining_seams.size();k++)
+    {
+        std::vector<Coords<2>> seam = remaining_seams[k];
+        for ( int l=0;l<seam.size();l++)
+        {
+            if (current_seam[l].y() <=  seam[l].y())
+            {
+                seam[l].y()+=2;
+            }
+        }
+        output.push_back(seam);
+    }
+
     return output;
 }
 
@@ -563,15 +611,4 @@ Image<Color> remove(Image<Color> I,int w,int h)
         return I;
     }
 
-}
-
-int valeur(std::vector<Coords<2>> seam,Image<byte> E)
-{
-    int N=seam.size();
-    int value=0;
-    for (int i=0;i<N;i++)
-    {
-        value+=E(seam[i].x(),seam[i].y());
-    }
-    return value;
 }
