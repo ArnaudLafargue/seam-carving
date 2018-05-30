@@ -166,7 +166,7 @@ Image<byte> imagegrey(const Image<Color> I)
     return Igrey;
 }
 
-void energie(Image<byte>& Vx, Image<byte>& Vy,Image<byte>& E)
+void energie(Image<byte>& Vx, Image<byte>& Vy,Image<int>& E)
 {
     for (int i=0;i<Vx.height();i++)
     {
@@ -193,6 +193,20 @@ void energie(Image<byte>& Vx, Image<byte>& Vy,Image<byte>& E)
 */
 }
 
+Image<byte> byte_(Image<int> a)
+{
+    Image<byte> a_(a.width(),a.height());
+    for (int i=0;i<a.height();i++)
+    {
+        for (int j=0;j<a.width();j++)
+        {
+            a_(j,i)=byte(a(j,i));
+        }
+    }
+    return a_;
+}
+
+
 void energie(Image<Color>& Vx, Image<Color>& Vy,Image<Color>& E)
 {
     for (int i=0;i<Vx.height();i++)
@@ -202,4 +216,46 @@ void energie(Image<Color>& Vx, Image<Color>& Vy,Image<Color>& E)
             E(j,i)=(Vx(j,i)+Vy(j,i))/2;
         }
     }
+}
+
+void energie_masque(Image<byte>& Vx, Image<byte>& Vy,Image<int>& E,Image<bool> &masque)
+{
+    energie(Vx,Vy,E);
+    for (int i=0;i<Vx.height();i++)
+    {
+        for (int j=0;j<Vx.width();j++)
+        {
+            if (masque(j,i))
+            {
+                E(j,i)= -1e5;
+            }
+        }
+    }
+}
+bool selectionRect(Window W,
+                   int& x1, int& y1, int& x2, int& y2, const Image<Color>& I)
+{
+    Event e;
+    do {
+        getEvent(0, e);
+        if(e.button==3) return false;
+        if(e.win != W) continue;
+        if(e.type==EVT_BUT_ON)
+        {
+            x1 = x2 = e.pix[0];
+            y1 = y2 = e.pix[1];
+        }
+        if(e.type==EVT_MOTION)
+        {
+            x2 = e.pix[0];
+            y2 = e.pix[1];
+            display(I);
+
+            drawRect(std::min(x1,x2), std::min(y1,y2), abs(x1-x2), abs(y1-y2),
+                     RED);
+        }
+    } while(e.win!=W || e.type!=EVT_BUT_OFF || abs(x1-x2)<5 || abs(y1-y2)<5);
+    if(x1>x2) std::swap(x1,x2);
+    if(y1>y2) std::swap(y1,y2);
+    return true;
 }

@@ -25,7 +25,7 @@ int min (int a , int b , int c)
     return mini;
 }
 
-std::vector<Coords<2>> Bellman_vertical(Image<byte> E,int&seam_value)
+std::vector<Coords<2>> Bellman_vertical(Image<int> E,int&seam_value)
 {
 
     std::vector<Coords<2>> seam_opt;
@@ -62,6 +62,7 @@ std::vector<Coords<2>> Bellman_vertical(Image<byte> E,int&seam_value)
 
     Coords<2> p(last_state,E.height()-1);// Valeur finale obtenue des M
     seam_value=bellmann(p.x(),p.y());
+
     Coords<2> p_=p+trans;
     seam_opt.insert(seam_opt.begin(),p_);
 
@@ -91,7 +92,7 @@ return seam_opt;
 
 
 
-std::vector<Coords<2>> Bellman_horizontal(Image<byte> E,int &seam_value)
+std::vector<Coords<2>> Bellman_horizontal(Image<int> E,int &seam_value)
 {
     std::vector<Coords<2>> seam_opt;
 
@@ -129,7 +130,6 @@ std::vector<Coords<2>> Bellman_horizontal(Image<byte> E,int &seam_value)
     Coords<2> p(E.width()-1,last_state);// coordonnées finales
 
     seam_value=bellmann(E.width()-1,last_state);
-
     Coords<2> p_=p+trans_;
 
     seam_opt.insert(seam_opt.begin(),p_);
@@ -181,10 +181,44 @@ Image<Color> assemble_vertical(Image<Color> I, std::vector<Coords<2>> seam)
     }
     return copie;
 }
+Image<bool> assemble_vertical(Image<bool> I, std::vector<Coords<2>> seam)
+{
+    Image<bool> copie(I.width()-1,I.height());
+    for (int i=0;i<I.height();i++)
+    {
+        for ( int j=0;j<seam[i].x();j++)
+        {
+            copie(j,i)=I(j,i);
+        }
+        for ( int j=seam[i].x();j<I.width()-1;j++)
+        {
+            copie(j,i)=I(j+1,i);
+        }
+    }
+    return copie;
+}
 
 Image<Color> assemble_horizontal(Image<Color> I,std::vector<Coords<2>> seam)
 {
     Image<Color> copie(I.width(),I.height()-1);
+    for (int j=0;j<I.width();j++)
+    {
+        for ( int i=0;i<seam[j].y();i++)
+        {
+            copie(j,i)=I(j,i);
+        }
+
+        for ( int i=seam[j].y();i<I.height()-1;i++)
+        {
+            copie(j,i)=I(j,i+1);
+        }
+    }
+    return copie;
+}
+
+Image<bool> assemble_horizontal(Image<bool> I,std::vector<Coords<2>> seam)
+{
+    Image<bool> copie(I.width(),I.height()-1);
     for (int j=0;j<I.width();j++)
     {
         for ( int i=0;i<seam[j].y();i++)
@@ -261,7 +295,7 @@ Image<Color> add(Image<Color> I,int w,int h)
     std::cout << "w restant "<< w<<" ;h restant "<<h<<std::endl;
     Image<byte> Vx(I.width(),I.height());
     Image<byte> Vy(I.width(),I.height());
-    Image<byte> E(I.width(),I.height());
+    Image<int> E(I.width(),I.height());
     Image<byte> Igrey=imagegrey(I);
     gradient(Igrey,Vx,Vy);
     energie(Vx,Vy,E);
@@ -276,7 +310,7 @@ Image<Color> add(Image<Color> I,int w,int h)
             Image<Color> I_=ajoute_vertical(I,seam2);
             Image<byte> Vx_(I.width()+1,I.height());
             Image<byte> Vy_(I.width()+1,I.height());
-            Image<byte> E_(I.width()+1,I.height());
+            Image<int> E_(I.width()+1,I.height());
             Image<byte> I_grey=imagegrey(I_);
             gradient(I_grey,Vx_,Vy_);
             energie(Vx_,Vy_,E_);
@@ -287,7 +321,7 @@ Image<Color> add(Image<Color> I,int w,int h)
             Image<Color> I_=ajoute_horizontal(I,seam1);
             Image<byte> Vx_(I.width(),I.height()+1);
             Image<byte> Vy_(I.width(),I.height()+1);
-            Image<byte> E_(I.width(),I.height()+1);
+            Image<int> E_(I.width(),I.height()+1);
             Image<byte> I_grey=imagegrey(I_);
             gradient(I_grey,Vx_,Vy_);
             energie(Vx_,Vy_,E_);
@@ -302,7 +336,7 @@ Image<Color> add(Image<Color> I,int w,int h)
         Image<Color> I_=ajoute_vertical(I,seam);
         Image<byte> Vx_(I.width()+1,I.height());
         Image<byte> Vy_(I.width()+1,I.height());
-        Image<byte> E_(I.width()+1,I.height());
+        Image<int> E_(I.width()+1,I.height());
         Image<byte> I_grey=imagegrey(I_);
         gradient(I_grey,Vx_,Vy_);
         energie(Vx_,Vy_,E_);
@@ -315,7 +349,7 @@ Image<Color> add(Image<Color> I,int w,int h)
         Image<Color> I_=ajoute_horizontal(I,seam);
         Image<byte> Vx_(I.width(),I.height()+1);
         Image<byte> Vy_(I.width(),I.height()+1);
-        Image<byte> E_(I.width(),I.height()+1);
+        Image<int> E_(I.width(),I.height()+1);
         Image<byte> I_grey=imagegrey(I_);
         gradient(I_grey,Vx_,Vy_);
         energie(Vx_,Vy_,E_);
@@ -413,7 +447,7 @@ void reccord_seam_vert(Image<Color> I,int n,std::vector<std::vector<Coords<2>>> 
     {
         Image<byte> Vx(I.width(),I.height());
         Image<byte> Vy(I.width(),I.height());
-        Image<byte> E(I.width(),I.height());
+        Image<int> E(I.width(),I.height());
         Image<byte> Igrey = imagegrey(I);
         gradient(Igrey,Vx,Vy);
         energie(Vx,Vy,E); // Calcul de la carte d'energie
@@ -433,7 +467,7 @@ void reccord_seam_hor(Image<Color> I,int n,std::vector<std::vector<Coords<2>>> &
     {
         Image<byte> Vx(I.width(),I.height());
         Image<byte> Vy(I.width(),I.height());
-        Image<byte> E(I.width(),I.height());
+        Image<int> E(I.width(),I.height());
         Image<byte> Igrey = imagegrey(I);
         gradient(Igrey,Vx,Vy);
         energie(Vx,Vy,E); // Calcul de la carte d'energie
@@ -545,7 +579,7 @@ Image<Color> remove(Image<Color> I,int w,int h)
     std::cout << "w restant "<< w<<" ;h restant "<<h<<std::endl;
     Image<byte> Vx(I.width(),I.height());
     Image<byte> Vy(I.width(),I.height());
-    Image<byte> E(I.width(),I.height());
+    Image<int> E(I.width(),I.height());
     Image<byte> Igrey=imagegrey(I);
     gradient(Igrey,Vx,Vy);
     energie(Vx,Vy,E);
@@ -560,7 +594,7 @@ Image<Color> remove(Image<Color> I,int w,int h)
             Image<Color> I_=assemble_vertical(I,seam2);
             Image<byte> Vx_(I.width()-1,I.height());
             Image<byte> Vy_(I.width()-1,I.height());
-            Image<byte> E_(I.width()-1,I.height());
+            Image<int> E_(I.width()-1,I.height());
             Image<byte> I_grey=imagegrey(I_);
             gradient(I_grey,Vx_,Vy_);
             energie(Vx_,Vy_,E_);
@@ -571,7 +605,7 @@ Image<Color> remove(Image<Color> I,int w,int h)
             Image<Color> I_=assemble_horizontal(I,seam1);
             Image<byte> Vx_(I.width(),I.height()-1);
             Image<byte> Vy_(I.width(),I.height()-1);
-            Image<byte> E_(I.width(),I.height()-1);
+            Image<int> E_(I.width(),I.height()-1);
             Image<byte> I_grey=imagegrey(I_);
             gradient(I_grey,Vx_,Vy_);
             energie(Vx_,Vy_,E_);
@@ -586,7 +620,7 @@ Image<Color> remove(Image<Color> I,int w,int h)
         Image<Color> I_=assemble_vertical(I,seam);
         Image<byte> Vx_(I.width()-1,I.height());
         Image<byte> Vy_(I.width()-1,I.height());
-        Image<byte> E_(I.width()-1,I.height());
+        Image<int> E_(I.width()-1,I.height());
         Image<byte> I_grey=imagegrey(I_);
         gradient(I_grey,Vx_,Vy_);
         energie(Vx_,Vy_,E_);
@@ -599,7 +633,7 @@ Image<Color> remove(Image<Color> I,int w,int h)
         Image<Color> I_=assemble_horizontal(I,seam);
         Image<byte> Vx_(I.width(),I.height()-1);
         Image<byte> Vy_(I.width(),I.height()-1);
-        Image<byte> E_(I.width(),I.height()-1);
+        Image<int> E_(I.width(),I.height()-1);
         Image<byte> I_grey=imagegrey(I_);
         gradient(I_grey,Vx_,Vy_);
         energie(Vx_,Vy_,E_);
@@ -612,3 +646,62 @@ Image<Color> remove(Image<Color> I,int w,int h)
     }
 
 }
+
+
+bool reste_masque(Image<bool> masque)
+{
+    for(int i=0;i<masque.height();i++)
+    {
+        for (int j=0;j<masque.width();j++)
+        {
+            if (masque(j,i))
+                return true;
+        }
+    }
+    return false;
+}
+
+Image<Color> remove_masque(Image<Color> I,Image<bool> masque)
+{
+    assert(I.width()==masque.width());
+    assert(I.height()==masque.height());
+    bool reste=reste_masque(masque);
+
+    Image<byte> Vx(I.width(),I.height());
+    Image<byte> Vy(I.width(),I.height());
+    Image<int> E(I.width(),I.height());
+    Image<byte> Igrey=imagegrey(I);
+    gradient(Igrey,Vx,Vy);
+    energie_masque(Vx,Vy,E,masque);
+
+    if(reste)
+    {
+        int seam_value;
+        std::vector<Coords<2>> seam=Bellman_horizontal(E,seam_value);
+        Image<Color> I_=assemble_horizontal(I,seam);
+        Image<bool> masque_ = assemble_horizontal(masque,seam);
+        Image<byte> Vx_(I.width(),I.height()-1);
+        Image<byte> Vy_(I.width(),I.height()-1);
+        Image<int> E_(I.width(),I.height()-1);
+        Image<byte> I_grey=imagegrey(I_);
+        gradient(I_grey,Vx_,Vy_);
+        energie_masque(Vx_,Vy_,E_,masque_);
+        return remove_masque(I_,masque_);
+
+    }
+    else
+    {
+        return I;
+    }
+
+}
+
+Image<Color> objet_removal(Image<Color> I,Image<bool> masque)
+{
+    std::cout <<" traitement en cours"<<std::endl;
+    Image<Color> res=remove_masque(I,masque);
+    int dh=I.height()-res.height();
+    Image<Color> result=addHorizontal(res,dh);
+    return result;
+}
+

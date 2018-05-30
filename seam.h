@@ -6,8 +6,8 @@ using namespace Imagine;
 #include <vector>
 #pragma once
 
-std::vector<Coords<2> > Bellman_vertical(Image<byte> E, int &seam_value);
-std::vector<Coords<2> > Bellman_horizontal(Image<byte> E, int &seam_value);
+std::vector<Coords<2> > Bellman_vertical(Image<int> E, int &seam_value);
+std::vector<Coords<2> > Bellman_horizontal(Image<int> E, int &seam_value);
 
 
 void dessine (std::vector<Coords<2>> seam);
@@ -18,7 +18,8 @@ Image<Color> assemble_horizontal(Image<Color> I, std::vector<Coords<2>> seam);
 
 Image<Color> ajoute_horizontal(Image<Color> I,std::vector<Coords<2>> seam);
 Image<Color> ajoute_vertical(Image<Color> I,std::vector<Coords<2>> seam);
-
+Image<bool> assemble_vertical(Image<bool> I, std::vector<Coords<2>> seam);
+Image<bool> assemble_horizontal(Image<bool> I,std::vector<Coords<2>> seam);
 
 Image<Color> remove(Image<Color> I,int w, int h);
 Image<Color> add(Image<Color> I, int w, int h);
@@ -38,4 +39,9 @@ void reccord_seam_hor(Image<Color> I,int n,std::vector<std::vector<Coords<2>>> &
 Image<Color> insertion_hor(Image<Color> I,int n,std::vector<std::vector<Coords<2>>> &liste_seam);
 std::vector<std::vector<Coords<2>>> update_seam_horizontal(std::vector<std::vector<Coords<2>>> remaining_seams,std::vector<Coords<2>>current_seam);
 
+
+bool reste_masque(Image<bool> masque);
+Image<Color> remove_masque(Image<Color> I,Image<bool> masque);
+
+Image<Color> objet_removal(Image<Color> I,Image<bool> masque);
 #endif // SEAM_H

@@ -1,22 +1,47 @@
 #include "image.h"
 #include "seam.h"
 
+
 int main(int argc, char* argv[])
 {
-
-
     Image<Color> I;
     if(! load(I, argc>1? argv[1]: srcPath("TEST1.png")))
     {
         std::cout << "Echec de lecture d'image" << std::endl;
         return 1;
     }
+    Image<byte> masque_(I.width(),I.height());
+    load(masque_,srcPath("TEST12_masque.png"));
+    openWindow(masque_.width(),masque_.height());
+    display(masque_);
+    click();
+    Window W3=openWindow(I.width(),I.height());
+    setActiveWindow(W3);
+    display(I);
+    click();
+    Image<bool> masque(masque_.width(),masque_.height());
+    for (int j=0;j<masque_.width();j++)
+    {
+        for (int i=0;i<masque_.height();i++)
+        {
+            if (masque_(j,i)!=255)
+                masque(j,i)=true;
+            else
+                masque(j,i)=false;
+        }
+    }
+    Image<Color> test = objet_removal(I,masque);
+    Window W2=openWindow(test.width(),test.height());
+    setActiveWindow(W2);
+    display(test);
+    click();
+
 
     // TEST 1
 /*
     Image<byte> Vx(I.width(),I.height());
     Image<byte> Vy(I.width(),I.height());
-    Image<byte> E(I.width(),I.height());
+    Image<int> E(I.width(),I.height());
     Image<byte> Igrey=imagegrey(I);
     gradient(Igrey,Vx,Vy);
 
@@ -45,7 +70,7 @@ int main(int argc, char* argv[])
 /*
     Image<byte> Vx(I.width(),I.height());
     Image<byte> Vy(I.width(),I.height());
-    Image<byte> E(I.width(),I.height());
+    Image<int> E(I.width(),I.height());
     Image<byte> Igrey=imagegrey(I);
     gradient(Igrey,Vx,Vy);
 
@@ -57,7 +82,7 @@ int main(int argc, char* argv[])
     display(Vy);
     click();
     energie(Vx,Vy,E);
-    display(E);
+    display(byte_(E));
     click();
     int seam_value=0;
     display(I);
@@ -73,7 +98,7 @@ int main(int argc, char* argv[])
 /*
     Image<byte> Vx(I.width(),I.height());
     Image<byte> Vy(I.width(),I.height());
-    Image<byte> E(I.width(),I.height());
+    Image<int> E(I.width(),I.height());
     Image<byte> Igrey=imagegrey(I);
     gradient(Igrey,Vx,Vy);
 
@@ -85,7 +110,7 @@ int main(int argc, char* argv[])
     display(Vy);
     click();
     energie(Vx,Vy,E);
-    display(E);
+    display(byte_(E));
     click();
     int seam_value=0;
     display(I);
@@ -101,7 +126,7 @@ int main(int argc, char* argv[])
 /*
     Image<byte> Vx(I.width(),I.height());
     Image<byte> Vy(I.width(),I.height());
-    Image<byte> E(I.width(),I.height());
+    Image<int> E(I.width(),I.height());
     Image<byte> Igrey=imagegrey(I);
     gradient(Igrey,Vx,Vy);
 
@@ -113,7 +138,7 @@ int main(int argc, char* argv[])
     display(Vy);
     click();
     energie(Vx,Vy,E);
-    display(E);
+    display(byte_(E));
     click();
     int seam_value=0;
     display(I);
